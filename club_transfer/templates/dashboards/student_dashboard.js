@@ -193,7 +193,7 @@ async function showClubModal(clubId) {
 
     await loadClubDocuments(clubId);
     switchModalTab('info');
-    document.getElementById('club-modal').hidden = false;
+    document.getElementById('club-modal').removeAttribute('style');
 }
 
 async function loadClubDocuments(clubId) {
@@ -265,7 +265,7 @@ async function loadMyTransfers() {
 }
 
 function closeClubModal() {
-    document.getElementById('club-modal').hidden = true;
+    document.getElementById('club-modal').setAttribute('style', 'display: none;');
 }
 
 async function handleLogout() {
