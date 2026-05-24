@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% load static %}
 
-{% block title %}轉設系統{% endblock %}
+{% block title %}社團轉社系統登入{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'index/index.css' %}">
@@ -9,27 +9,41 @@
 {% endblock %}
 
 {% block content %}
-<div id="login-button-container">
-    <a href="{% url 'login' %}" class="login-btn">登入</a>
-</div>
-<h1>歡迎來到轉設系統！</h1>
-<noscript>
-    <p>您的瀏覽器不支援 JavaScript，請啟用 JavaScript 以獲得最佳體驗。</p>
-</noscript>
-<table id="clubs-overview">
-    <caption hidden="">社團總攬</caption>
-    <thead>
-        <tr>
-            <th scope="col">社團名稱</th>
-            <th scope="col">社長</th>
-            <th scope="col">介紹</th>
-            <th scope="col">目前人數</th>
-            <th scope="col">人數餘額</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-    <tfoot></tfoot>
-</table>
+<main class="login-page">
+    <section class="login-panel" aria-labelledby="login-title">
+        <div class="login-heading">
+            <p class="eyebrow">社團轉社系統</p>
+            <h1 id="login-title">登入</h1>
+        </div>
 
+        <form id="login-form" novalidate>
+            <div class="form-group">
+                <label for="username">帳號</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    autocomplete="username"
+                    required
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">密碼</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <div id="login-error" class="error-message" role="alert" hidden></div>
+
+            <button id="login-submit" type="submit" class="btn-primary">登入</button>
+        </form>
+    </section>
+</main>
 {% endblock %}

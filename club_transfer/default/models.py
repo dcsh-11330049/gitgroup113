@@ -26,7 +26,8 @@ class User(models.Model):
     email = models.EmailField('電子郵件', blank=True, null=True)
 
     def __str__(self):
-        return f"{self.name} ({self.student_id})"
+        identifier = self.username or self.email or self.id
+        return f"{self.name} ({identifier})"
 
 
 class Club(models.Model):
@@ -129,4 +130,80 @@ class SystemSettings(models.Model):
 
     def __str__(self):
         return '系統設定'
+
+
+class ClubMembership(models.Model):
+    """記錄學生所屬社團。"""
+    club = models.ForeignKey(Club, verbose_name='社團', related_name='memberships', on_delete=models.CASCADE)
+    student = models.ForeignKey(User, verbose_name='學生', related_name='club_memberships', on_delete=models.CASCADE)
+    joined_at = models.DateTimeField('加入時間', auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('club', 'student')
+        verbose_name = '社團成員'
+        verbose_name_plural = '社團成員'
+    
+    def __str__(self):
+        return f"{self.student.name} - {self.club.club_name}"
+
+
+class ClubDescriptionModification(models.Model):
+    """記錄待審核的社團介紹修改。"""
+    class StatusChoices(models.TextChoices):
+        PENDING = 'pending', '待審核'
+        APPROVED = 'approved', '已核准'
+        REJECTED = 'rejected', '已退回'
+    
+    club = models.ForeignKey(Club, verbose_name='社團', related_name='description_modifications', on_delete=models.CASCADE)
+    submitted_by = models.ForeignKey(User, verbose_name='送出者', related_name='club_modifications', on_delete=models.CASCADE)
+    description = models.TextField('社團介紹', blank=True, null=True)
+    description_url = models.URLField('社團介紹網址', blank=True, null=True)
+    status = models.CharField('狀態', max_length=20, choices=StatusChoices.choices, default=StatusChoices.PENDING)
+    approved_by = models.ForeignKey(User, verbose_name='審核者', related_name='approved_modifications', 
+                                    blank=True, null=True, on_delete=models.SET_NULL)
+    approval_comment = models.TextField('審核備註', blank=True, null=True)
+    created_at = models.DateTimeField('送出時間', auto_now_add=True)
+    updated_at = models.DateTimeField('更新時間', auto_now=True)
+    
+    class Meta:
+        verbose_name = '社團描述修改'
+        verbose_name_plural = '社團描述修改'
+    
+    def __str__(self):
+        return f"{self.club.club_name} - {self.get_status_display()}"
+
+
+class ClubDocument(models.Model):
+    """儲存社團文件。"""
+    club = models.ForeignKey(Club, verbose_name='社團', related_name='documents', on_delete=models.CASCADE)
+    title = models.CharField('文件標題', max_length=200)
+    file = models.FileField('文件', upload_to='club_documents/')
+    uploaded_by = models.ForeignKey(User, verbose_name='上傳者', related_name='club_documents', on_delete=models.CASCADE)
+    uploaded_at = models.DateTimeField('上傳時間', auto_now_add=True)
+    
+    class Meta:
+        verbose_name = '社團文件'
+        verbose_name_plural = '社團文件'
+    
+    def __str__(self):
+        return f"{self.club.club_name} - {self.title}"
+
+
+class ClubModificationDocument(models.Model):
+    """社團介紹修改待審核時一併上傳的文件。"""
+    modification = models.ForeignKey(
+        ClubDescriptionModification,
+        related_name='pending_documents',
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=200)
+    file = models.FileField(upload_to='club_description_modifications/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = '待審核社團介紹文件'
+        verbose_name_plural = '待審核社團介紹文件'
+
+    def __str__(self):
+        return f"{self.modification.club.club_name} - {self.title}"
 

@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}管理員儀表板 - 社團轉社系統{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'dashboards/dashboard.css' %}">
+<script src="{% static 'dashboards/admin_dashboard.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+<header class="dashboard-header">
+    <div class="header-left">
+        <h1>管理員儀表板</h1>
+    </div>
+    <div class="header-right">
+        <span id="user-name">{{ user.name }}</span>
+        <button id="logout-btn" class="btn-logout">登出</button>
+    </div>
+</header>
+
+<main class="dashboard-container">
+    <nav class="tabs" aria-label="管理員儀表板分頁">
+        <button class="tab-btn active" data-tab="system-settings" type="button">轉社期間</button>
+        <button class="tab-btn" data-tab="transfer-logs" type="button">轉社紀錄</button>
+        <button class="tab-btn" data-tab="all-clubs" type="button">社團介紹</button>
+    </nav>
+
+    <section id="system-settings" class="tab-content active">
+        <div class="section-heading">
+            <h2>轉社期間</h2>
+        </div>
+        <form id="settings-form" class="settings-container">
+            <div class="form-group">
+                <label for="transfer_start_date">轉社開始時間</label>
+                <input type="datetime-local" id="transfer_start_date" name="transfer_start_date">
+            </div>
+            <div class="form-group">
+                <label for="transfer_end_date">轉社結束時間</label>
+                <input type="datetime-local" id="transfer_end_date" name="transfer_end_date">
+            </div>
+            <button type="submit" class="btn-primary">儲存期間</button>
+            <div id="settings-status"></div>
+        </form>
+    </section>
+
+    <section id="transfer-logs" class="tab-content">
+        <div class="section-heading">
+            <h2>轉社審核與退回紀錄</h2>
+        </div>
+        <div class="table-wrap">
+            <table id="transfer-logs-table" class="logs-table">
+                <thead>
+                    <tr>
+                        <th scope="col">學生</th>
+                        <th scope="col">原社團</th>
+                        <th scope="col">目標社團</th>
+                        <th scope="col">狀態</th>
+                        <th scope="col">送出時間</th>
+                        <th scope="col">審核紀錄</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="all-clubs" class="tab-content">
+        <div class="section-heading">
+            <h2>社團介紹</h2>
+        </div>
+        <div class="table-wrap">
+            <table id="clubs-table" class="clubs-table">
+                <thead>
+                    <tr>
+                        <th scope="col">社團</th>
+                        <th scope="col">社長</th>
+                        <th scope="col">指導老師</th>
+                        <th scope="col">人數</th>
+                        <th scope="col">文件</th>
+                        <th scope="col">操作</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div id="club-modal" class="modal" hidden>
+    <div class="modal-content">
+        <button class="modal-close" type="button" aria-label="關閉">&times;</button>
+        <h2 id="modal-club-name"></h2>
+        <div class="modal-tabs" aria-label="社團詳細資料分頁">
+            <button class="modal-tab active" data-tab="info" type="button">社團介紹</button>
+            <button class="modal-tab" data-tab="documents" type="button">文件</button>
+            <button class="modal-tab" data-tab="members" type="button">成員</button>
+        </div>
+
+        <div id="info" class="modal-tab-content active">
+            <div id="club-info"></div>
+        </div>
+
+        <div id="documents" class="modal-tab-content">
+            <div id="club-documents"></div>
+        </div>
+
+        <div id="members" class="modal-tab-content">
+            <div id="club-members"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

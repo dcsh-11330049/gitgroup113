@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}教師儀表板 - 社團轉社系統{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'dashboards/dashboard.css' %}">
+<script src="{% static 'dashboards/teacher_dashboard.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+<header class="dashboard-header">
+    <div class="header-left">
+        <h1>教師儀表板</h1>
+    </div>
+    <div class="header-right">
+        <span id="user-name">{{ user.name }}</span>
+        <button id="logout-btn" class="btn-logout">登出</button>
+    </div>
+</header>
+
+<main class="dashboard-container">
+    <nav class="tabs" aria-label="教師儀表板分頁">
+        <button class="tab-btn active" data-tab="my-clubs" type="button">指導社團</button>
+        <button class="tab-btn" data-tab="transfer-approvals" type="button">轉社審核</button>
+    </nav>
+
+    <section id="my-clubs" class="tab-content active">
+        <div class="section-heading">
+            <h2>指導社團</h2>
+        </div>
+        <div id="coached-clubs-container" class="card-grid"></div>
+    </section>
+
+    <section id="transfer-approvals" class="tab-content">
+        <div class="section-heading">
+            <h2>待審核轉社申請</h2>
+        </div>
+        <div id="pending-transfers" class="card-grid"></div>
+    </section>
+</main>
+
+<div id="club-modal" class="modal" hidden>
+    <div class="modal-content">
+        <button class="modal-close" type="button" aria-label="關閉">&times;</button>
+        <h2 id="modal-club-name"></h2>
+        <div class="modal-tabs" aria-label="社團詳細資料分頁">
+            <button class="modal-tab active" data-tab="info" type="button">社團介紹</button>
+            <button class="modal-tab" data-tab="documents" type="button">文件</button>
+            <button class="modal-tab" data-tab="members" type="button">成員</button>
+        </div>
+
+        <div id="info" class="modal-tab-content active">
+            <div id="club-info"></div>
+        </div>
+
+        <div id="documents" class="modal-tab-content">
+            <div id="club-documents"></div>
+        </div>
+
+        <div id="members" class="modal-tab-content">
+            <div id="club-members"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

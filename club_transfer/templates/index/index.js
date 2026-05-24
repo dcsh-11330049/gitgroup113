@@ -1,62 +1,84 @@
-let clubs;
-let fetchtimer; // Timer for automatic fetching
+const API_BASE = '/clubs/api';
 
-function createCell(content, className = '', nullContent='無', nullClass='none', nullClass_append = false) {
-    const cell = document.createElement('td');
-    cell.textContent = content || nullContent;
-    if (className)
-        cell.className = className;
-    else if (!content && nullClass) {
-        if (nullClass_append)
-            cell.className += nullClass;
-        else
-            cell.className = nullClass;
+const loginForm = document.getElementById('login-form');
+const loginError = document.getElementById('login-error');
+const loginSubmit = document.getElementById('login-submit');
+
+document.addEventListener('DOMContentLoaded', () => {
+    loginForm.addEventListener('submit', handleLogin);
+    redirectIfAlreadyLoggedIn();
+});
+
+async function redirectIfAlreadyLoggedIn() {
+    try {
+        const data = await apiGet('/current-user/');
+        if (data.logged_in && data.user.dashboard_url) {
+            window.location.replace(data.user.dashboard_url);
+        }
+    } catch (error) {
+        showLoginError('無法確認登入狀態，請重新登入。');
     }
-    return cell;
 }
 
-function displayClubs(clubs) {
-    const table = document.getElementById('clubs-overview');
-    const tbody = table.getElementsByTagName('tbody')[0];
-    tbody.innerHTML = ''; // Clear existing rows
+async function handleLogin(event) {
+    event.preventDefault();
+    clearLoginError();
 
-    clubs.forEach(club => {
-        const row = document.createElement('tr');
-        row.classList.add("club-row");
-        row.appendChild(createCell(club.name));
-        row.appendChild(createCell(club.president_name, '', '無社長'));
-        row.appendChild(createCell(club.description_url || club.description, '', '無說明'));
-        if (club.max_capacity) {
-            const capacity_label = `${club.current_members} / ${club.max_capacity}`;
-            // Determine capacity class (full, nearly-full, not-full)
-            let capacity_class;
-            if (club.current_members >= club.max_capacity)
-                capacity_class = 'full';
-            else if (club.current_members >= club.max_capacity * 0.7)
-                capacity_class = 'nearly-full';
-            else 
-                capacity_class = 'not-full';
+    const username = loginForm.username.value.trim();
+    const password = loginForm.password.value;
 
-            row.appendChild(createCell(capacity_label, capacity_class));
-            row.appendChild(createCell(capacity_class == "full" ? '已滿額' : club.max_capacity - club.current_members, capacity_class));
-        } else {
-            row.appendChild(createCell(club.current_members, 'not-full'));
-            row.appendChild(createCell('無上限', 'not-full'));
-        }
-        tbody.appendChild(row);
+    if (!username || !password) {
+        showLoginError('請輸入帳號與密碼。');
+        return;
+    }
+
+    setLoading(true);
+
+    try {
+        const data = await apiPostJson('/login/', { username, password });
+        window.location.assign(data.redirect_url || '/clubs/');
+    } catch (error) {
+        showLoginError(error.message || '登入失敗，請再試一次。');
+        setLoading(false);
+    }
+}
+
+async function apiGet(path) {
+    return apiFetch(path, { method: 'GET' });
+}
+
+async function apiPostJson(path, payload) {
+    return apiFetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
     });
 }
 
-function fetchClubs() {
-    fetch('/clubs/api/clubs/')
-        .then(response => response.json())
-        .then(fetched_clubs => {
-            clubs = fetched_clubs; // Store the fetched clubs
-            displayClubs(clubs);
-        });
+async function apiFetch(path, options = {}) {
+    const response = await fetch(`${API_BASE}${path}`, {
+        credentials: 'same-origin',
+        ...options,
+    });
+
+    const data = await response.json();
+    if (!response.ok || data.success === false) {
+        throw new Error(data.message || data.error || '請求失敗。');
+    }
+    return data;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchClubs();
-    fetchtimer = setInterval(fetchClubs, 10000); // Refresh every 10 seconds
-});
+function showLoginError(message) {
+    loginError.textContent = message;
+    loginError.hidden = false;
+}
+
+function clearLoginError() {
+    loginError.textContent = '';
+    loginError.hidden = true;
+}
+
+function setLoading(isLoading) {
+    loginSubmit.disabled = isLoading;
+    loginSubmit.textContent = isLoading ? '登入中...' : '登入';
+}
