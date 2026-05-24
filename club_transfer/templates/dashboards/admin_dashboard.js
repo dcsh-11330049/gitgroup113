@@ -159,7 +159,7 @@ async function showClubModal(clubId) {
     document.getElementById('club-info').innerHTML = renderDescription(club);
     await Promise.all([loadClubDocuments(clubId), loadClubMembers(clubId)]);
     switchModalTab('info');
-    document.getElementById('club-modal').hidden = false;
+    document.getElementById('club-modal').removeAttribute('style');
 }
 
 async function loadClubDocuments(clubId) {
@@ -251,7 +251,7 @@ function renderMembers(members) {
 }
 
 function closeClubModal() {
-    document.getElementById('club-modal').hidden = true;
+    document.getElementById('club-modal').setAttribute('style', 'display: none;');
 }
 
 async function handleLogout() {
