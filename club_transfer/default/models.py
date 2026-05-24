@@ -29,7 +29,7 @@ class Club(models.Model):
         related_name='presided_clubs',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
     )
     teacher = models.ForeignKey(
         User,
@@ -37,7 +37,7 @@ class Club(models.Model):
         related_name='coached_clubs',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
     )
 
     def __str__(self):
@@ -59,19 +59,19 @@ class TransferApplication(models.Model):
         User,
         verbose_name='申請學生',
         related_name='transfer_applications',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
     )
     original_club = models.ForeignKey(
         Club,
         verbose_name='原社團',
         related_name='original_applications',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
     )
     new_club = models.ForeignKey(
         Club,
         verbose_name='目標社團',
         related_name='new_applications',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
     )
     status = models.CharField('申請狀態', max_length=40, choices=StatusChoices.choices, default=StatusChoices.PENDING_ORIGINAL_PRESIDENT)
     is_original_club_approved = models.BooleanField('原社團已同意', default=False)
@@ -91,13 +91,13 @@ class ApprovalLog(models.Model):
         TransferApplication,
         verbose_name='申請單',
         related_name='approval_logs',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
     )
     reviewer = models.ForeignKey(
         User,
         verbose_name='審核者',
         related_name='approval_logs',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
     )
     action = models.CharField('動作', max_length=20, choices=ActionChoices.choices)
     comment = models.TextField('備註', blank=True, null=True)
