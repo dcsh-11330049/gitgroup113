@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}社長儀表板 - 社團轉社系統{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'dashboards/dashboard.css' %}">
+<script src="{% static 'dashboards/president_dashboard.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+<header class="dashboard-header">
+    <div class="header-left">
+        <h1>社長儀表板</h1>
+    </div>
+    <div class="header-right">
+        <span id="user-name">{{ user.name }}</span>
+        <button id="logout-btn" class="btn-logout">登出</button>
+    </div>
+</header>
+
+<main class="dashboard-container">
+    <nav class="tabs" aria-label="社長儀表板分頁">
+        <button class="tab-btn active" data-tab="my-clubs" type="button">我的社團</button>
+        <button class="tab-btn" data-tab="description-approvals" type="button">社團介紹審核</button>
+        <button class="tab-btn" data-tab="transfer-approvals" type="button">轉社審核</button>
+    </nav>
+
+    <section id="my-clubs" class="tab-content active">
+        <div class="section-heading">
+            <h2>我的社團</h2>
+        </div>
+        <div id="my-club-container" class="card-grid"></div>
+    </section>
+
+    <section id="description-approvals" class="tab-content">
+        <div class="section-heading">
+            <h2>待審核社團介紹修改</h2>
+        </div>
+        <div id="pending-modifications" class="card-grid"></div>
+    </section>
+
+    <section id="transfer-approvals" class="tab-content">
+        <div class="section-heading">
+            <h2>待審核轉社申請</h2>
+        </div>
+        <div id="pending-transfers" class="card-grid"></div>
+    </section>
+</main>
+{% endblock %}

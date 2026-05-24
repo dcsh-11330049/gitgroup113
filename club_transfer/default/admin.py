@@ -1,6 +1,18 @@
 from django.contrib import admin
 
-from .models import User, Club, TransferApplication, ApprovalLog, SystemSettings, Student, Superviser
+from .models import (
+    ApprovalLog,
+    Club,
+    ClubDescriptionModification,
+    ClubDocument,
+    ClubMembership,
+    ClubModificationDocument,
+    Student,
+    Superviser,
+    SystemSettings,
+    TransferApplication,
+    User,
+)
 
 
 @admin.register(User)
@@ -42,3 +54,28 @@ class ApprovalLogAdmin(admin.ModelAdmin):
 @admin.register(SystemSettings)
 class SystemSettingsAdmin(admin.ModelAdmin):
     list_display = ('transfer_start_date', 'transfer_end_date')
+
+
+@admin.register(ClubMembership)
+class ClubMembershipAdmin(admin.ModelAdmin):
+    list_display = ('club', 'student', 'joined_at')
+    search_fields = ('club__club_name', 'student__name')
+
+
+@admin.register(ClubDescriptionModification)
+class ClubDescriptionModificationAdmin(admin.ModelAdmin):
+    list_display = ('club', 'submitted_by', 'status', 'approved_by', 'created_at')
+    list_filter = ('status',)
+    search_fields = ('club__club_name', 'submitted_by__name')
+
+
+@admin.register(ClubModificationDocument)
+class ClubModificationDocumentAdmin(admin.ModelAdmin):
+    list_display = ('modification', 'title', 'uploaded_at')
+    search_fields = ('title', 'modification__club__club_name')
+
+
+@admin.register(ClubDocument)
+class ClubDocumentAdmin(admin.ModelAdmin):
+    list_display = ('club', 'title', 'uploaded_by', 'uploaded_at')
+    search_fields = ('club__club_name', 'title', 'uploaded_by__name')
