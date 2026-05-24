@@ -1,12 +1,24 @@
 from django.contrib import admin
 
-from .models import User, Club, TransferApplication, ApprovalLog, SystemSettings
+from .models import User, Club, TransferApplication, ApprovalLog, SystemSettings, Student, Superviser
 
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('student_id', 'name', 'role', 'email')
-    search_fields = ('student_id', 'name', 'email')
+    list_display = ('name', 'username', 'email')
+    search_fields = ('name', 'username', 'email')
+
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('student_id', 'user', 'class_number', 'role')
+    search_fields = ('student_id', 'user__name')
+
+
+@admin.register(Superviser)
+class SuperviserAdmin(admin.ModelAdmin):
+    list_display = ('teacher_id', 'user', 'role')
+    search_fields = ('teacher_id', 'user__name')
 
 
 @admin.register(Club)

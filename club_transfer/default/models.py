@@ -1,18 +1,28 @@
 from django.db import models
 
-
-class User(models.Model):
+class Student(models.Model):
     class RoleChoices(models.TextChoices):
         STUDENT = 'student', '學生'
         PRESIDENT = 'president', '社長'
         TEACHER = 'teacher', '老師'
         DISCIPLINE = 'discipline', '訓育組'
-
+    user = models.OneToOneField('User', on_delete=models.CASCADE)
     student_id = models.CharField('學號', max_length=50, unique=True)
-    password = models.CharField('密碼', max_length=128)
-    name = models.CharField('姓名', max_length=100)
     class_number = models.CharField('班級座號', max_length=20)
     role = models.CharField('角色', max_length=20, choices=RoleChoices.choices, default=RoleChoices.STUDENT)
+
+class Superviser(models.Model):
+    class RoleChoices(models.TextChoices):
+        PRESIDENT = 'president', '社長'
+        DISCIPLINE = 'discipline', '訓育組'
+    user = models.OneToOneField('User', on_delete=models.CASCADE)
+    teacher_id = models.CharField('教師編號', max_length=50, unique=True)
+    role = models.CharField('角色', max_length=20, choices=RoleChoices.choices, default=RoleChoices.DISCIPLINE)
+
+class User(models.Model):
+    username = models.CharField('登入名稱', max_length=50, unique=True, blank=True, null=True)
+    password = models.CharField('密碼', max_length=128)
+    name = models.CharField('姓名', max_length=100)
     email = models.EmailField('電子郵件', blank=True, null=True)
 
     def __str__(self):
@@ -23,6 +33,8 @@ class Club(models.Model):
     club_name = models.CharField('社團名稱', max_length=100)
     max_capacity = models.PositiveIntegerField('人數上限')
     current_members = models.PositiveIntegerField('目前人數', default=0)
+    description = models.TextField('社團介紹', blank=True, null=True)
+    description_url = models.URLField('社團介紹網址', blank=True, null=True)
     president = models.ForeignKey(
         User,
         verbose_name='社長',
