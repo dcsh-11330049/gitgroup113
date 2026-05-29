@@ -1,5 +1,5 @@
 import json
-
+from datetime import datetime
 from django.db import transaction
 from django.db.models import Q
 from django.http import JsonResponse
@@ -112,7 +112,7 @@ def parse_client_datetime(value):
 
     parsed = parse_datetime(value)
     if parsed is None:
-        parsed = timezone.datetime.fromisoformat(value)
+        parsed = datetime.fromisoformat(value)
 
     if timezone.is_naive(parsed):
         parsed = timezone.make_aware(parsed, timezone.get_current_timezone())
@@ -290,39 +290,38 @@ def admin_dashboard(request):
 @require_http_methods(['POST'])
 @csrf_exempt
 def api_login(request):
-    """Login endpoint for all custom users."""
     try:
-        data = parse_json_body(request)
-        username = data.get('username')
-        password = data.get('password')
+
+        # Support BOTH JSON and form submissions
+        if request.content_type and 'application/json' in request.content_type:
+            data = json.loads(request.body.decode('utf-8'))
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            username = request.POST.get('username')
+            password = request.POST.get('password')
 
         if not username or not password:
             return json_error('請輸入帳號與密碼。')
 
         user = User.objects.filter(username=username).first()
-        if not user or user.password != password:
-            return json_error('帳號或密碼錯誤。', status=401)
+
+        if not user:
+            return json_error('找不到使用者。', status=401)
+
+        if user.password != password:
+            return json_error('密碼錯誤。', status=401)
 
         role = get_user_role(user)
+
         request.session['user_id'] = user.id
-        request.session['username'] = user.username
-        request.session['name'] = user.name
         request.session['role'] = role
 
         return JsonResponse({
             'success': True,
-            'message': f'{user.name}，歡迎回來。',
-            'user': {
-                'id': user.id,
-                'username': user.username,
-                'name': user.name,
-                'role': role,
-                'role_display': role_display(role),
-            },
             'redirect_url': dashboard_url_for_role(role),
         })
-    except json.JSONDecodeError:
-        return json_error('資料格式錯誤。')
+
     except Exception as exc:
         return json_error(str(exc), status=500)
 
